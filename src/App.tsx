@@ -1,3 +1,4 @@
+// Forcing a rebuild for Netlify
 import { useEffect, useState } from 'react';
 import { Filter, Sparkles } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -112,8 +113,7 @@ function App() {
           </div>
           <button
             onClick={() => setFilter('all')}
-            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${
-              filter === 'all'
+            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${filter === 'all'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
             }`}
@@ -122,8 +122,7 @@ function App() {
           </button>
           <button
             onClick={() => setFilter('creation')}
-            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${
-              filter === 'creation'
+            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${filter === 'creation'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
             }`}
@@ -132,8 +131,7 @@ function App() {
           </button>
           <button
             onClick={() => setFilter('pattern')}
-            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${
-              filter === 'pattern'
+            className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${filter === 'pattern'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
             }`}
