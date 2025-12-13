@@ -1,5 +1,7 @@
-import { X, Minus, Plus, Trash2, Package } from 'lucide-react';
+import { useState } from 'react';
+import { X, Minus, Plus, Trash2, Package, Loader2 } from 'lucide-react';
 import type { CartItem } from '../types/product';
+import { supabase } from '../lib/supabase';
 
 interface CartProps {
   isOpen: boolean;
@@ -10,7 +12,30 @@ interface CartProps {
 }
 
 export default function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartProps) {
+  const [loading, setLoading] = useState(false);
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: items,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('Hubo un error al procesar el pago. Por favor, inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -45,16 +70,16 @@ export default function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemov
               <div key={item.id} className="flex gap-4 bg-gradient-to-br from-rose-50 to-amber-50 p-4 rounded-xl border border-rose-100/50 hover:shadow-md transition-shadow">
                 <img
                   src={item.image_url}
-                  alt={item.title}
+                  alt={item.name}
                   className="w-20 h-20 object-cover rounded-lg"
                   onError={(e) => {
                     e.currentTarget.src = 'https://images.pexels.com/photos/6140688/pexels-photo-6140688.jpeg';
                   }}
                 />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                  <h3 className="font-semibold text-gray-800">{item.name}</h3>
                   <p className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-amber-500 font-bold mt-1">
-                    ${item.price.toFixed(2)}
+                    {item.price.toFixed(2)}€
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <button
@@ -88,7 +113,7 @@ export default function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemov
             <div className="space-y-2">
               <div className="flex items-center justify-between text-gray-600">
                 <span className="font-medium">Subtotal:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{total.toFixed(2)}€</span>
               </div>
               <div className="flex items-center justify-between text-gray-600 text-sm">
                 <span className="font-medium">Envío:</span>
@@ -97,16 +122,24 @@ export default function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemov
               <div className="border-t border-rose-200 pt-2 flex items-center justify-between">
                 <span className="font-serif font-bold text-gray-800">Total:</span>
                 <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-amber-500">
-                  ${total.toFixed(2)}
+                  {total.toFixed(2)}€
                 </span>
               </div>
             </div>
-            <button className="w-full btn-primary justify-center">
-              Proceder al Pago
+            <button
+              className="w-full btn-primary justify-center flex items-center gap-2"
+              onClick={handleCheckout}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Procesando...
+                </>
+              ) : (
+                'Proceder al Pago'
+              )}
             </button>
-            <p className="text-xs text-center text-gray-500">
-              El sistema de pagos será configurado próximamente
-            </p>
           </div>
         )}
       </div>
