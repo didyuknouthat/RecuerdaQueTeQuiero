@@ -18,7 +18,7 @@ export default function Header({ cartCount, onCartClick }: HeaderProps) {
               <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900">
                 RecuerdaQueTeQuiero
               </h1>
-              <p className="text-sm text-rose-600 italic font-light">Crochet hecho con amor</p>
+              <p className="text-sm text-rose-600 italic font-light">Artesanía hecha con amor</p>
             </div>
           </div>
 
