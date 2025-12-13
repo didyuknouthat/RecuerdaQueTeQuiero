@@ -1,10 +1,11 @@
 export interface Product {
   id: string;
-  title: string;
+  name: string; // Corregido de 'title' a 'name'
   description: string;
   type: 'creation' | 'pattern';
   price: number;
-  image_url: string;
+  image_url?: string; // La imagen antigua ahora es opcional
+  image_urls?: string[]; // Nueva lista de imágenes
   category: string;
   difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
   materials?: string;

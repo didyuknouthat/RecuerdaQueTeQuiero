@@ -1,62 +1,83 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import Stripe from 'https://esm.sh/stripe@11.1.0';
+// CAMBIO CLAVE: Usar una versión moderna de la librería de Stripe
+import Stripe from 'https://esm.sh/stripe@15.12.0';
 
-// Define la forma de los datos que esperamos recibir del carrito
+console.log("Stripe Checkout function booting up!");
+
 interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
   image_url?: string;
+  type?: string; // Añadimos el tipo para saber si es físico
 }
-
-// Inicializa Stripe con la clave secreta que guardaste antes de forma segura
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
-  apiVersion: '2022-11-15',
-});
 
 // La función principal que se ejecuta cuando se recibe una petición
 serve(async (req) => {
+  console.log(`Request received: ${req.method}`);
+
   // Esta parte es necesaria por seguridad web (CORS)
   if (req.method === 'OPTIONS') {
+    console.log("Handling OPTIONS request for CORS.");
     return new Response('ok', {
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': '*',
       },
     });
   }
 
   try {
-    // 1. Obtiene los productos del carrito que envía la petición
-    const cartItems: CartItem[] = await req.json();
+    console.log("Attempting to process payment...");
 
-    // 2. Convierte los productos del carrito al formato que Stripe necesita
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set in Supabase secrets.");
+    }
+    console.log("Stripe secret key loaded.");
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2024-06-20',
+    });
+    console.log("Stripe client initialized.");
+
+    const cartItems: CartItem[] = await req.json();
+    console.log("Received cart items:", JSON.stringify(cartItems, null, 2));
+
+    // Comprobar si hay algún producto físico en el carrito
+    const hasPhysicalProduct = cartItems.some(item => item.type === 'creation');
+
     const line_items = cartItems.map((item) => {
       return {
         price_data: {
-          currency: 'eur', // ¡CAMBIADO A EUROS!
+          currency: 'eur',
           product_data: {
             name: item.name,
             images: item.image_url ? [item.image_url] : [],
           },
-          unit_amount: Math.round(item.price * 100), // Stripe necesita el precio en céntimos
+          unit_amount: Math.round(item.price * 100),
         },
         quantity: item.quantity,
       };
     });
+    console.log("Formatted line items for Stripe.");
 
-    // 3. Crea una Sesión de Pago segura en Stripe
+    console.log("Creating Stripe checkout session...");
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      // IMPORTANTE: Aquí le dices a Stripe a dónde enviar al usuario después del pago
-      success_url: `https://recuerdaquetequiero.netlify.app/`, // Más adelante podemos crear una página de "gracias"
+      // ¡CAMBIO CLAVE! Pedir dirección si hay productos físicos
+      shipping_address_collection: hasPhysicalProduct ? {
+        allowed_countries: ['ES', 'FR', 'DE', 'PT', 'IT', 'US', 'GB', 'CA'], // Puedes cambiar esta lista de países
+      } : undefined,
+      success_url: `https://recuerdaquetequiero.netlify.app/`,
       cancel_url: `https://recuerdaquetequiero.netlify.app/`,
     });
+    console.log("Stripe session created successfully!");
 
-    // 4. Devuelve la URL de la página de pago de Stripe
     return new Response(JSON.stringify({ url: session.url }), {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -65,6 +86,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
+    console.error("!!! FATAL ERROR IN CHECKOUT FUNCTION !!!");
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
