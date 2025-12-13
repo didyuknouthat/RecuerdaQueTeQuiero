@@ -33,7 +33,7 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }: Pro
           ) : (
             <span className="bg-white/95 backdrop-blur text-rose-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-rose-200 flex items-center gap-1.5 shadow-md">
               <ShoppingBag size={14} />
-              Creación
+              Pieza Artesanal
             </span>
           )}
         </div>

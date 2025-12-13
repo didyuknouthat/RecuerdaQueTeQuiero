@@ -56,7 +56,7 @@ export default function ProductDetails({ product, isOpen, onClose, onAddToCart }
               ) : (
                 <span className="bg-rose-100 text-rose-700 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 border border-rose-200">
                   <ShoppingBag size={18} />
-                  Creación
+                  Pieza Artesanal
                 </span>
               )}
             </div>

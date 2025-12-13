@@ -1,4 +1,3 @@
-// Forcing a rebuild for Netlify
 import { useEffect, useState } from 'react';
 import { Filter, Sparkles } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -99,10 +98,10 @@ function App() {
             <Sparkles className="text-amber-500" size={24} />
           </div>
           <h2 className="heading-xl mb-6">
-            Creaciones hechas con amor
+            Artesanía hecha con amor
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Descubre piezas únicas de crochet y patrones para crear tus propias obras maestras. Cada creación es especial y hecha pensando en ti.
+            Descubre piezas únicas y patrones para crear tus propias obras maestras. Cada creación es especial y hecha pensando en ti.
           </p>
         </div>
 
@@ -127,7 +126,7 @@ function App() {
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
             }`}
           >
-            Creaciones
+            Piezas Artesanales
           </button>
           <button
             onClick={() => setFilter('pattern')}
