@@ -24,7 +24,7 @@ serve(async (req) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': '*',
+        'Access-control-Allow-Headers': '*',
       },
     });
   }
@@ -46,7 +46,6 @@ serve(async (req) => {
     const cartItems: CartItem[] = await req.json();
     console.log("Received cart items:", JSON.stringify(cartItems, null, 2));
 
-    // Comprobar si hay algún producto físico en el carrito
     const hasPhysicalProduct = cartItems.some(item => item.type === 'creation');
 
     const line_items = cartItems.map((item) => {
@@ -69,10 +68,15 @@ serve(async (req) => {
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      // ¡CAMBIO CLAVE! Pedir dirección si hay productos físicos
       shipping_address_collection: hasPhysicalProduct ? {
-        allowed_countries: ['ES', 'FR', 'DE', 'PT', 'IT', 'US', 'GB', 'CA'], // Puedes cambiar esta lista de países
+        allowed_countries: ['ES', 'FR', 'DE', 'PT', 'IT', 'US', 'GB', 'CA'],
       } : undefined,
+      // ¡NUEVO! Añade los gastos de envío si procede
+      shipping_options: hasPhysicalProduct ? [
+        {
+          shipping_rate: 'shr_1SdwAGLYNXJuQ0AWbWDIi2o0',
+        },
+      ] : [],
       success_url: `https://recuerdaquetequiero.netlify.app/`,
       cancel_url: `https://recuerdaquetequiero.netlify.app/`,
     });

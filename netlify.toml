@@ -1,0 +1,3 @@
+# Configuración para Netlify: Le dice dónde encontrar las funciones
+[functions]
+  directory = "netlify/functions/"
